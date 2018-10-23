@@ -1,0 +1,112 @@
+#!/usr/bin/env ruby
+
+require 'como'
+include Como
+require 'rubu'
+include Rubu
+require 'fileutils'
+
+# require 'byebug'
+
+Spec.command( 'rubu', 'Tero Isannainen', '2018',
+    [
+#        [ :opt_comp,  'conf',    '-c', "Configuration option." ],
+        [ :switch,    'verbose', '-v', "Verbose." ],
+        [ :switch,    'serial',  '-s', "Serial execution." ],
+        [ :default,    nil,       nil, "Trail(s) to execute." ],
+    ] )
+
+
+
+# ------------------------------------------------------------
+# Build specific definitions:
+
+Var[ :publish_dir ] = "#{ENV['HOME']}/usr"
+
+Order[ :verbose ] = Opt['verbose'].given
+Order[ :serial ] = Opt[ 'serial' ].given
+#Trail.setup( :como => 'conf' )
+
+
+# ------------------------------------------------------------
+# Collect sources and create targets:
+
+dirs = Dir.glob( "*" ).select{|i| File.directory?( i )} - [ "src", "build", "litter", "gweilo" ]
+objects = dirs.inject( [] ){ |list,dir| list + Dir.glob( dir + "/build/release/out/c/*.o" ) }
+
+prj_marks = Mark.list( dirs )
+obj_marks = Mark.list( objects )
+lib_mark = Mark.path( 'build/libtensix.so.0.0.1' )
+
+
+# ------------------------------------------------------------
+# Build Commands:
+
+class TestPrj < StepAlways
+    def step
+        shrun "cd #{source.base}; ceedling test:all"
+    end
+end
+
+class CleanPrj < StepAlways
+    def step
+        shrun "cd #{source.base}; ceedling clean"
+    end
+end
+
+class PublishPrj < StepAlways
+    def step
+        shrun "cd #{source.base}; ceedling_run publish"
+    end
+end
+
+class TensixPublish < StepAlways
+    def step
+        shrun "cp src/tensix.h #{Var[ :publish_dir ]}/include"
+        shrun "cp build/libtensix.so.0.0.1 #{Var[ :publish_dir ]}/lib"
+    end
+end
+
+class TensixLibrary < StepAlways
+    def step
+        walk do
+            shrun "mkdir -p build"
+            shrun "gcc -shared -Wl,-soname,libtensix.so.0 #{sources.rpath} -o #{target.rpath}"
+        end
+    end
+end
+
+
+# ------------------------------------------------------------
+# Define trails:
+
+Fork.form 'default' do
+    TestPrj.useset( prj_marks )
+end
+
+Fork.form 'clean' do
+    CleanPrj.useset( prj_marks )
+end
+
+Fork.form 'publish-prj' do
+    PublishPrj.useset( prj_marks )
+end
+
+Walk.form 'tensix-lib' do
+    PublishPrj.useset( prj_marks )
+end
+
+Walk.form 'publish' do
+    pick 'clean'
+    pick 'publish-prj'
+    TensixLibrary.use( obj_marks, lib_mark )
+    TensixPublish.use
+end
+
+
+
+
+# ------------------------------------------------------------
+# Run selected trails:
+
+Trail.run( Opt[ nil ].apply( [ 'default' ] ) )
