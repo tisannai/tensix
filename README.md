@@ -22,7 +22,7 @@ Tensix core libraries:
 1. Logger: Flexible logger library. String based log groups with full
            control.
 1. Mapper: Hash table.
-1. Mempro: Memory Proxy (Memory Provider).
+1. Memtun: Proxy for memory management.
 1. Ringer: Ring buffer for pointers.
 1. Segman: Memory pooler for fixed size slots.
 1. Slinky: Simple string library for efficient and well integrated
