@@ -29,10 +29,11 @@
 #include <arenas.h>
 #include <bitumi.h>
 #include <chainy.h>
+#include <comlin.h>
 #include <framer.h>
 #include <gromer.h>
 //#include <gweilo.h>
-//#include <litter.h>
+#include <litter.h>
 #include <logger.h>
 #include <mapper.h>
 #include <memtun.h>

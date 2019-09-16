@@ -31,7 +31,7 @@ Order[ :serial ] = Opt[ 'serial' ].given
 # ------------------------------------------------------------
 # Collect sources and create targets:
 
-dirs = Dir.glob( "*" ).select{|i| File.directory?( i )} - [ "src", "build", "litter", "gweilo" ]
+dirs = Dir.glob( "*" ).select{|i| File.directory?( i )} - [ "src", "build", "gweilo" ]
 objects = dirs.inject( [] ){ |list,dir| list + Dir.glob( dir + "/build/release/out/c/*.o" ) }
 
 prj_marks = Mark.list( dirs )
