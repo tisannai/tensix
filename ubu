@@ -1,0 +1,75 @@
+#!/usr/bin/sh
+exec ti-guile-script "$0" "$@"
+!#
+
+(use-modules (ubu))
+(use-modules (ubu-lib gcc))
+(use-modules (tuile pr))
+(use-modules (tuile utils))
+(use-modules ((srfi srfi-1) #:select (fold-right)))
+
+(set ":log-level" 'output)
+
+(set "dirs" (filter (lambda (i)
+                    (not (find-first (lambda (s) (string=? i s))
+                                     (list "src" "build" "gweilo"))))
+                  (list-dir "."
+                            #:no-files #t
+                            #:no-hidden #t)))
+
+
+(set "objects" (fold-right append '()
+                           (map
+                            (lambda (i)
+                              (get-files (string-append i "/build/release/out/c/*.o")))
+                            (get "dirs"))))
+
+(set "library" "build/libtensix.so.0.0.1")
+
+(set "publish-dir" (glu "/" (env "HOME") "usr"))
+
+
+(ubu-default "test")
+(action test
+        (for-each (lambda (dir)
+                    (in-dir dir
+                            (sh "ceedling test:all")))
+                  (get "dirs")))
+
+
+(action clean
+        (for-each (lambda (dir)
+                    (in-dir dir
+                            (sh "ceedling clean")))
+                  (get "dirs")))
+
+
+(action publish-project
+        (for-each (lambda (dir)
+                    (pr "Doing dir: " dir)
+                    (in-dir dir
+                            (sh "ceedling_run publish")))
+                  (get "dirs")))
+
+
+(action publish-tensix
+        (sh "cp src/tensix.h" (glu "/" (get "publish-dir") "include"))
+        (sh "cp build/libtensix.so.0.0.1" (glu "/" (get "publish-dir") "lib")))
+
+
+(action build-library
+        (sh "mkdir -p build")
+        (sh "gcc -shared -Wl,-soname,libtensix.so.0"
+            (get "objects")
+            "-o"
+            (get "library")))
+
+
+(action publish
+        (clean)
+        (publish-project)
+        (build-library)
+        (publish-tensix))
+
+
+(ubu-run-cli)
