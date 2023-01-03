@@ -1,6 +1,9 @@
-#!/usr/bin/sh
-exec ti-guile-script "$0" "$@"
+#!/usr/bin/env ti-guile
 !#
+
+;;  #!/usr/bin/sh
+;; exec ti-guile-script "$0" "$@"
+;; !#
 
 (use-modules (ubu))
 (use-modules (ubu-lib gcc))
