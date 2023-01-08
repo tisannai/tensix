@@ -30,6 +30,7 @@
 #include <bitumi.h>
 #include <chainy.h>
 #include <comlin.h>
+#include <flexer.h>
 #include <framer.h>
 #include <gromer.h>
 //#include <gweilo.h>
@@ -37,6 +38,7 @@
 #include <logger.h>
 #include <mapper.h>
 #include <memtun.h>
+#include <postor.h>
 #include <ringer.h>
 #include <segman.h>
 #include <slinky.h>
