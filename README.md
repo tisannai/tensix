@@ -17,6 +17,7 @@ Tensix core libraries:
 1. Bitumi: Bit-packer.
 1. Chainy: Singly Linked List library.
 1. Comlin: Command line option parsing.
+1. Flexer: Autoresized data container.
 1. Framer: Unrolled Doubly Linked List library.
 1. Gromer: Autoresized pointer container.
 1. Litter: Collection of miscellaneous stuff.
